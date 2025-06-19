@@ -1,0 +1,68 @@
+// DP-Knapsack type Problem - Last Stone 2
+
+
+---------------------Recurssion ---------------------------------------
+
+class Solution {
+public:
+    int solve(int idx, int plus, int minus, vector<int>& stones) {
+        if (idx == stones.size()) {
+            return abs(plus - minus);  // base case: return difference between two subsets
+        }
+
+        // Put current stone in the "plus" pile
+        int op1 = solve(idx + 1, plus + stones[idx], minus, stones);
+
+        // Put current stone in the "minus" pile
+        int op2 = solve(idx + 1, plus, minus + stones[idx], stones);
+
+        return min(op1, op2);
+    }
+
+    int lastStoneWeightII(vector<int>& stones) {
+        return solve(0, 0, 0, stones);
+    }
+};
+
+
+
+
+------------------------------- Bottom UP------------------------------------
+class Solution {
+public:
+    int lastStoneWeightII(vector<int>& stones) {
+        int n = stones.size();
+        int total = accumulate(stones.begin(), stones.end(), 0);
+
+        // dp[i][diff + total] = true if we can reach 'diff' at index i
+        vector<vector<bool>> dp(n + 1, vector<bool>(2 * total + 1, false));
+        dp[0][total] = true; // diff = 0 at start (shifted by total)
+
+        for (int i = 0; i < n; i++) {
+            for (int diff = -total; diff <= total; diff++) {
+                if (dp[i][diff + total]) {
+                    // Add current stone to plus pile (diff + stones[i])
+                    dp[i + 1][diff + stones[i] + total] = true;
+
+                    // Add current stone to minus pile (diff - stones[i])
+                    dp[i + 1][diff - stones[i] + total] = true;
+                }
+            }
+        }
+
+        // Find the minimum abs(diff) from last row
+        for (int d = 0; d <= total; d++) {
+            if (dp[n][d + total]) {
+                return d;
+            }
+        }
+
+        return 0; // fallback
+    }
+};
+
+
+
+
+
+
