@@ -1,0 +1,36 @@
+class Solution {
+public:
+    bool canPartition(vector<int>& nums) {
+        int n = nums.size();
+        int arr_sum = accumulate(nums.begin(), nums.end(), 0);
+
+        if (arr_sum % 2 != 0) return false;  // can't split odd total
+
+        int maxSum = arr_sum;  // max possible sum of one subset
+        vector<vector<bool>> dp(n + 1, vector<bool>(maxSum + 1, false));
+
+        // base case: sum 0 is always possible with 0 elements
+        dp[0][0] = true;
+
+        for (int i = 1; i <= n; i++) {
+            for (int sum = 0; sum <= maxSum; sum++) {
+                bool not_pick = dp[i - 1][sum];
+                bool pick = false;
+
+                if (sum - nums[i - 1] >= 0)
+                    pick = dp[i - 1][sum - nums[i - 1]];
+
+                dp[i][sum] = pick || not_pick;
+            }
+        }
+
+        // Now scan the last row to find any sum where sum == arr_sum - sum
+        for (int sum = 0; sum <= arr_sum; sum++) {
+            if (dp[n][sum] && sum == arr_sum - sum) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
