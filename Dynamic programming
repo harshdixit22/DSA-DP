@@ -24,6 +24,38 @@ public:
     }
 };
 
+-----------------------------memoization-----------------------------------
+
+class Solution {
+public:
+    int dp[31][3001]; // 3001 = 2 * max total sum + 1 (for offset)
+
+    int solve(int idx, int diff, vector<int>& stones, int total) {
+        if (idx == stones.size()) {
+            return abs(diff);
+        }
+
+        if (dp[idx][diff + total] != -1) {
+            return dp[idx][diff + total];
+        }
+
+        // Option 1: add current stone to "plus" pile (diff increases)
+        int op1 = solve(idx + 1, diff + stones[idx], stones, total);
+
+        // Option 2: add current stone to "minus" pile (diff decreases)
+        int op2 = solve(idx + 1, diff - stones[idx], stones, total);
+
+        return dp[idx][diff + total] = min(op1, op2);
+    }
+
+    int lastStoneWeightII(vector<int>& stones) {
+        int total = accumulate(stones.begin(), stones.end(), 0);
+        memset(dp, -1, sizeof(dp));
+        return solve(0, 0, stones, total);
+    }
+};
+
+
 
 
 
